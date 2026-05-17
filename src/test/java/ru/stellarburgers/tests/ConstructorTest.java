@@ -14,40 +14,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ConstructorTest extends BaseTest {
 
     @Test
-    @DisplayName("Клик по вкладке 'Булки' — раздел булок виден")
-    @Description("После клика на вкладку 'Булки' заголовок раздела должен отображаться")
+    @DisplayName("Клик по вкладке 'Булки' показывает раздел булок")
+    @Description("После клика на 'Булки' заголовок раздела виден на странице")
     public void clickBunsTabShowsBunsSection() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
-        // Сначала перейдём к другому разделу, потом вернёмся к булкам
-        mainPage.clickSaucesTab();
+        mainPage.clickSaucesTab(); // сначала уйдём от булок
         mainPage.clickBunsTab();
-
         assertTrue(mainPage.isBunsSectionVisible(),
-                "Заголовок раздела 'Булки' должен быть виден");
+                "Заголовок 'Булки' должен быть виден");
     }
 
     @Test
-    @DisplayName("Клик по вкладке 'Соусы' — раздел соусов виден")
-    @Description("После клика на вкладку 'Соусы' заголовок раздела должен отображаться")
+    @DisplayName("Клик по вкладке 'Соусы' показывает раздел соусов")
+    @Description("После клика на 'Соусы' заголовок раздела виден на странице")
     public void clickSaucesTabShowsSaucesSection() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
         mainPage.clickSaucesTab();
-
         assertTrue(mainPage.isSaucesSectionVisible(),
-                "Заголовок раздела 'Соусы' должен быть виден");
+                "Заголовок 'Соусы' должен быть виден");
     }
 
     @Test
-    @DisplayName("Клик по вкладке 'Начинки' — раздел начинок виден")
-    @Description("После клика на вкладку 'Начинки' заголовок раздела должен отображаться")
+    @DisplayName("Клик по вкладке 'Начинки' показывает раздел начинок")
+    @Description("После клика на 'Начинки' заголовок раздела виден на странице")
     public void clickFillingsTabShowsFillingsSection() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
         mainPage.clickFillingsTab();
-
         assertTrue(mainPage.isFillingsSectionVisible(),
-                "Заголовок раздела 'Начинки' должен быть виден");
+                "Заголовок 'Начинки' должен быть виден");
     }
 }

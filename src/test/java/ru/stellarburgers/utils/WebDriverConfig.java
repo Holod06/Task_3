@@ -27,13 +27,11 @@ public class WebDriverConfig {
     }
 
     private static WebDriver createYandexDriver() {
-        // Путь к yandexdriver задаётся через -Dyandex.driver.path=...
         String driverPath = System.getProperty("yandex.driver.path",
                 "/usr/local/bin/yandexdriver");
         System.setProperty("webdriver.chrome.driver", driverPath);
 
         ChromeOptions options = new ChromeOptions();
-        // Путь к бинарю Яндекс.Браузера задаётся через -Dyandex.browser.path=...
         String browserPath = System.getProperty("yandex.browser.path",
                 "/usr/bin/yandex-browser");
         options.setBinary(browserPath);

@@ -3,39 +3,38 @@ package ru.stellarburgers.pages;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class LoginPage extends BasePage {
 
     private final By emailField =
-            By.xpath("//label[text()='Email']/following-sibling::input");
+            By.xpath("//input[@name='name' or @type='email']");
     private final By passwordField =
-            By.xpath("//label[text()='Пароль']/following-sibling::input");
+            By.xpath("//input[@name='Пароль' or @type='password']");
     private final By loginButton =
-            By.xpath("//button[text()='Войти']");
+            By.xpath("//button[contains(text(),'Войти')]");
     private final By registerLink =
             By.xpath("//a[@href='/register']");
     private final By forgotPasswordLink =
             By.xpath("//a[@href='/forgot-password']");
     private final By pageTitle =
-            By.xpath("//h2[text()='Вход']");
+            By.xpath("//*[contains(text(),'Вход')]");
 
-    public LoginPage(WebDriver driver) {
-        super(driver);
-    }
+    public LoginPage(WebDriver driver) { super(driver); }
 
     @Step("Открыть страницу входа")
-    public void open() {
-        driver.get(BASE_URL + "/login");
-    }
+    public void open() { driver.get(BASE_URL + "/login"); }
 
-    @Step("Ввести email: {email}")
+    @Step("Ввести email")
     public LoginPage enterEmail(String email) {
+        waitVisible(emailField).clear();
         waitVisible(emailField).sendKeys(email);
         return this;
     }
 
     @Step("Ввести пароль")
     public LoginPage enterPassword(String password) {
+        waitVisible(passwordField).clear();
         waitVisible(passwordField).sendKeys(password);
         return this;
     }
@@ -58,15 +57,18 @@ public class LoginPage extends BasePage {
         return new ForgotPasswordPage(driver);
     }
 
-    @Step("Войти с email: {email}")
+    @Step("Войти с email и паролем")
     public MainPage login(String email, String password) {
         enterEmail(email);
         enterPassword(password);
         return clickLoginButton();
     }
 
-    @Step("Проверить, что открыта страница входа")
+    @Step("Проверить, что страница входа открыта")
     public boolean isLoginPageOpened() {
-        return isElementVisible(pageTitle);
+        try {
+            wait.until(ExpectedConditions.urlContains("/login"));
+            return true;
+        } catch (Exception e) { return false; }
     }
 }

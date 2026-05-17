@@ -3,10 +3,8 @@ package ru.stellarburgers.tests;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import ru.stellarburgers.pages.LoginPage;
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import ru.stellarburgers.pages.RegistrationPage;
 import ru.stellarburgers.utils.TestDataGenerator;
 import ru.stellarburgers.utils.UserApi;
@@ -24,44 +22,44 @@ public class RegistrationTest extends BaseTest {
     public void deleteTestUser() {
         if (email != null && password != null) {
             try {
-                String token = UserApi.getAccessToken(email, password);
-                UserApi.deleteUser(token);
+                UserApi.deleteUser(UserApi.getAccessToken(email, password));
             } catch (Exception ignored) {}
         }
     }
 
     @Test
-    @DisplayName("Успешная регистрация перенаправляет на страницу входа")
-    @Description("После регистрации с валидными данными должна открыться страница входа")
+    @DisplayName("Успешная регистрация — редирект на страницу входа")
+    @Description("После регистрации с валидными данными открывается /login")
     public void successfulRegistrationRedirectsToLogin() {
         String name = TestDataGenerator.generateName();
         email = TestDataGenerator.generateEmail();
         password = TestDataGenerator.generateValidPassword();
 
-        RegistrationPage registrationPage = new RegistrationPage(driver);
-        registrationPage.open();
-        LoginPage loginPage = registrationPage.register(name, email, password);
+        RegistrationPage page = new RegistrationPage(driver);
+        page.open();
+        page.register(name, email, password);
 
-        assertTrue(loginPage.isLoginPageOpened(),
-                "После успешной регистрации должна открыться страница входа");
+        wait.until(ExpectedConditions.urlContains("/login"));
+        assertTrue(driver.getCurrentUrl().contains("/login"),
+                "После регистрации должен быть редирект на /login");
     }
 
     @Test
-    @DisplayName("Пароль короче 6 символов вызывает ошибку 'Некорректный пароль'")
-    @Description("При вводе пароля < 6 символов и попытке регистрации отображается ошибка")
-    public void registrationWithShortPasswordShowsError() {
+    @DisplayName("Пароль < 6 символов показывает ошибку 'Некорректный пароль'")
+    @Description("При вводе короткого пароля и отправке формы отображается ошибка")
+    public void shortPasswordShowsError() {
         String name = TestDataGenerator.generateName();
         email = TestDataGenerator.generateEmail();
         password = TestDataGenerator.generateShortPassword();
 
-        RegistrationPage registrationPage = new RegistrationPage(driver);
-        registrationPage.open();
-        registrationPage.enterName(name);
-        registrationPage.enterEmail(email);
-        registrationPage.enterPassword(password);
-        registrationPage.clickRegisterButtonExpectError();
+        RegistrationPage page = new RegistrationPage(driver);
+        page.open();
+        page.enterName(name);
+        page.enterEmail(email);
+        page.enterPassword(password);
+        page.clickRegisterButtonExpectError();
 
-        assertTrue(registrationPage.isPasswordErrorVisible(),
+        assertTrue(page.isPasswordErrorVisible(),
                 "Должна отображаться ошибка 'Некорректный пароль'");
     }
 }

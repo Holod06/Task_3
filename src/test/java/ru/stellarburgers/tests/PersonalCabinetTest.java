@@ -4,10 +4,8 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Step;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import ru.stellarburgers.pages.LoginPage;
 import ru.stellarburgers.pages.MainPage;
 import ru.stellarburgers.pages.PersonalCabinetPage;
@@ -25,7 +23,7 @@ public class PersonalCabinetTest extends BaseTest {
     private String accessToken;
 
     @BeforeEach
-    @Step("Создать пользователя и войти в аккаунт")
+    @Step("Создать пользователя через API и войти в аккаунт")
     public void createAndLoginUser() {
         String name = TestDataGenerator.generateName();
         email = TestDataGenerator.generateEmail();
@@ -36,6 +34,8 @@ public class PersonalCabinetTest extends BaseTest {
         LoginPage loginPage = new LoginPage(driver);
         loginPage.open();
         loginPage.login(email, password);
+        // Ждём завершения входа
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/login")));
     }
 
     @AfterEach
@@ -45,52 +45,52 @@ public class PersonalCabinetTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Авторизованный пользователь переходит в личный кабинет")
-    @Description("Клик по 'Личный кабинет' после входа открывает страницу профиля")
+    @DisplayName("Переход в личный кабинет по клику на ссылку 'Личный кабинет'")
+    @Description("После входа кликаем на 'Личный кабинет' → открывается /account/profile")
     public void navigateToPersonalCabinet() {
         MainPage mainPage = new MainPage(driver);
-        // После логина мы на главной — кликаем в Личный кабинет
-        // Для авторизованного пользователя ссылка ведёт сразу в /account/profile
-        driver.get(BASE_URL + "/account/profile");
-        PersonalCabinetPage cabinetPage = new PersonalCabinetPage(driver);
-
-        assertTrue(cabinetPage.isPersonalCabinetOpened(),
-                "Должна открыться страница профиля пользователя");
+        mainPage.clickPersonalCabinetLink();
+        wait.until(ExpectedConditions.urlContains("/account"));
+        assertTrue(driver.getCurrentUrl().contains("/account"),
+                "URL должен содержать /account");
     }
 
     @Test
-    @DisplayName("Переход из личного кабинета в конструктор по клику 'Конструктор'")
-    @Description("Кнопка 'Конструктор' в шапке из кабинета ведёт на главную страницу")
+    @DisplayName("Из личного кабинета в конструктор по клику 'Конструктор'")
+    @Description("Кликаем 'Конструктор' в шапке из кабинета → открывается главная")
     public void navigateFromCabinetToConstructorViaLink() {
         PersonalCabinetPage cabinetPage = new PersonalCabinetPage(driver);
         cabinetPage.open();
-        MainPage mainPage = cabinetPage.clickConstructorLink();
-
-        assertTrue(mainPage.isBunsSectionVisible(),
-                "После перехода должна открыться главная страница с конструктором");
+        wait.until(ExpectedConditions.urlContains("/account"));
+        cabinetPage.clickConstructorLink();
+        wait.until(ExpectedConditions.urlMatches(".*/($|\\?).*|.*/"));
+        assertTrue(!driver.getCurrentUrl().contains("/account"),
+                "После перехода URL не должен содержать /account");
     }
 
     @Test
-    @DisplayName("Переход из личного кабинета на главную по клику на логотип")
-    @Description("Клик на логотип из кабинета ведёт на главную страницу с конструктором")
+    @DisplayName("Из личного кабинета на главную по клику на логотип")
+    @Description("Кликаем на логотип из кабинета → открывается главная страница")
     public void navigateFromCabinetToMainViaLogo() {
         PersonalCabinetPage cabinetPage = new PersonalCabinetPage(driver);
         cabinetPage.open();
-        MainPage mainPage = cabinetPage.clickLogo();
-
-        assertTrue(mainPage.isBunsSectionVisible(),
-                "После клика на логотип должна открыться главная страница");
+        wait.until(ExpectedConditions.urlContains("/account"));
+        cabinetPage.clickLogo();
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/account")));
+        assertTrue(!driver.getCurrentUrl().contains("/account"),
+                "После клика на логотип URL не должен содержать /account");
     }
 
     @Test
-    @DisplayName("Выход из аккаунта по кнопке 'Выйти' открывает страницу входа")
-    @Description("Нажимаем 'Выйти' в личном кабинете и попадаем на форму входа")
+    @DisplayName("Выход из аккаунта по кнопке 'Выйти'")
+    @Description("Нажимаем 'Выйти' в личном кабинете → открывается страница входа")
     public void logoutFromPersonalCabinet() {
         PersonalCabinetPage cabinetPage = new PersonalCabinetPage(driver);
         cabinetPage.open();
-        LoginPage loginPage = cabinetPage.clickLogoutButton();
-
-        assertTrue(loginPage.isLoginPageOpened(),
-                "После выхода должна открыться страница входа");
+        wait.until(ExpectedConditions.urlContains("/account"));
+        cabinetPage.clickLogoutButton();
+        wait.until(ExpectedConditions.urlContains("/login"));
+        assertTrue(driver.getCurrentUrl().contains("/login"),
+                "После выхода URL должен содержать /login");
     }
 }

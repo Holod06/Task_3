@@ -24,14 +24,13 @@ public abstract class BaseTest {
     public void setUp() {
         driver = WebDriverConfig.createDriver();
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
     @AfterEach
     public void tearDown() {
         if (driver != null) {
-            // Прикрепить скриншот к Allure-отчёту при падении
             try {
                 byte[] screenshot = ((TakesScreenshot) driver)
                         .getScreenshotAs(OutputType.BYTES);

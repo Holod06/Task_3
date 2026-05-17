@@ -3,40 +3,35 @@ package ru.stellarburgers.pages;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class RegistrationPage extends BasePage {
 
     private final By nameField =
-            By.xpath("//label[text()='Имя']/following-sibling::input");
+            By.xpath("//input[@name='name' or @placeholder='Имя']");
     private final By emailField =
-            By.xpath("//label[text()='Email']/following-sibling::input");
+            By.xpath("//label[normalize-space()='Email']/following::input[1]");
     private final By passwordField =
-            By.xpath("//label[text()='Пароль']/following-sibling::input");
+            By.xpath("//input[@type='password' or @name='Пароль']");
     private final By registerButton =
-            By.xpath("//button[text()='Зарегистрироваться']");
+            By.xpath("//button[contains(text(),'Зарегистрироваться')]");
     private final By loginLink =
             By.xpath("//a[@href='/login']");
     private final By passwordError =
-            By.xpath("//p[contains(@class,'input__error') and text()='Некорректный пароль']");
-    private final By pageTitle =
-            By.xpath("//h2[text()='Регистрация']");
+            By.xpath("//*[contains(text(),'Некорректный пароль')]");
 
-    public RegistrationPage(WebDriver driver) {
-        super(driver);
-    }
+    public RegistrationPage(WebDriver driver) { super(driver); }
 
     @Step("Открыть страницу регистрации")
-    public void open() {
-        driver.get(BASE_URL + "/register");
-    }
+    public void open() { driver.get(BASE_URL + "/register"); }
 
-    @Step("Ввести имя: {name}")
+    @Step("Ввести имя")
     public RegistrationPage enterName(String name) {
         waitVisible(nameField).sendKeys(name);
         return this;
     }
 
-    @Step("Ввести email: {email}")
+    @Step("Ввести email")
     public RegistrationPage enterEmail(String email) {
         waitVisible(emailField).sendKeys(email);
         return this;
@@ -51,6 +46,8 @@ public class RegistrationPage extends BasePage {
     @Step("Нажать кнопку 'Зарегистрироваться'")
     public LoginPage clickRegisterButton() {
         waitClickable(registerButton).click();
+        // Ждём редиректа на /login
+        wait.until(ExpectedConditions.urlContains("/login"));
         return new LoginPage(driver);
     }
 
@@ -66,7 +63,7 @@ public class RegistrationPage extends BasePage {
         return new LoginPage(driver);
     }
 
-    @Step("Зарегистрироваться: имя={name}, email={email}")
+    @Step("Зарегистрировать пользователя")
     public LoginPage register(String name, String email, String password) {
         enterName(name);
         enterEmail(email);
@@ -74,13 +71,8 @@ public class RegistrationPage extends BasePage {
         return clickRegisterButton();
     }
 
-    @Step("Проверить, что отображается ошибка 'Некорректный пароль'")
+    @Step("Проверить ошибку 'Некорректный пароль'")
     public boolean isPasswordErrorVisible() {
         return isElementVisible(passwordError);
-    }
-
-    @Step("Проверить, что открыта страница регистрации")
-    public boolean isRegistrationPageOpened() {
-        return isElementVisible(pageTitle);
     }
 }

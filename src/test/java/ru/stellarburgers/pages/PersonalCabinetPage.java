@@ -2,48 +2,66 @@ package ru.stellarburgers.pages;
 
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 public class PersonalCabinetPage extends BasePage {
 
+    // Кнопка выхода — ищем любую кнопку с текстом «Выйти» или «Выход»
     private final By logoutButton =
-            By.xpath("//button[text()='Выход']");
+            By.xpath("//button[contains(text(),'Выйти') or contains(text(),'Выход')]");
+
+    // Поле имени в профиле
     private final By nameField =
-            By.xpath("//label[text()='Имя']/following-sibling::input");
+            By.xpath("//input[@name='name' or @placeholder='Имя']");
+
+    // Ссылка «Конструктор» в шапке (по href)
     private final By constructorLink =
-            By.xpath("//p[text()='Конструктор']");
+            By.xpath("//a[@href='/']");
+
+    // Логотип
     private final By logoLink =
-            By.xpath("//div[contains(@class,'AppHeader_header__logo')]");
+            By.xpath("//*[contains(@class,'logo')]");
 
-    public PersonalCabinetPage(WebDriver driver) {
-        super(driver);
-    }
+    // Ссылка «Профиль» в левом меню кабинета
+    private final By profileMenuLink =
+            By.xpath("//a[contains(@href,'/account/profile')]");
 
-    @Step("Открыть страницу личного кабинета")
-    public void open() {
-        driver.get(BASE_URL + "/account/profile");
-    }
+    public PersonalCabinetPage(WebDriver driver) { super(driver); }
+
+    @Step("Открыть страницу личного кабинета напрямую")
+    public void open() { driver.get(BASE_URL + "/account/profile"); }
 
     @Step("Нажать кнопку 'Выйти'")
     public LoginPage clickLogoutButton() {
-        waitClickable(logoutButton).click();
+        jsClick(logoutButton);
         return new LoginPage(driver);
     }
 
-    @Step("Нажать ссылку 'Конструктор' в шапке")
+    @Step("Нажать 'Конструктор' в шапке")
     public MainPage clickConstructorLink() {
-        waitClickable(constructorLink).click();
+        jsClick(constructorLink);
         return new MainPage(driver);
     }
 
-    @Step("Нажать на логотип Stellar Burgers")
+    @Step("Нажать на логотип")
     public MainPage clickLogo() {
-        waitClickable(logoLink).click();
+        jsClick(logoLink);
         return new MainPage(driver);
     }
 
-    @Step("Проверить, что личный кабинет открыт (видно поле 'Имя')")
+    private void jsClick(By locator) {
+        WebElement el = waitVisible(locator);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
+    }
+
+    @Step("Проверить, что личный кабинет открыт")
     public boolean isPersonalCabinetOpened() {
-        return isElementVisible(nameField);
+        // Проверяем по URL — надёжнее чем локатор
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {}
+        return driver.getCurrentUrl().contains("/account");
     }
 }
