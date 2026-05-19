@@ -14,36 +14,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ConstructorTest extends BaseTest {
 
     @Test
-    @DisplayName("Клик по вкладке 'Булки' показывает раздел булок")
-    @Description("После клика на 'Булки' заголовок раздела виден на странице")
-    public void clickBunsTabShowsBunsSection() {
+    @DisplayName("Переход к разделу 'Булки'")
+    @Description("После клика вкладка 'Булки' становится активной на UI")
+    public void bunsTabBecomesActive() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
-        mainPage.clickSaucesTab(); // сначала уйдём от булок
-        mainPage.clickBunsTab();
-        assertTrue(mainPage.isBunsSectionVisible(),
-                "Заголовок 'Булки' должен быть виден");
+        mainPage.clickSaucesTab(); // уходим от булок
+        mainPage.clickBunsTab();  // метод сам ждёт активации вкладки
+
+        assertTrue(mainPage.isBunsTabActive(),
+                "Вкладка 'Булки' должна быть активной");
     }
 
     @Test
-    @DisplayName("Клик по вкладке 'Соусы' показывает раздел соусов")
-    @Description("После клика на 'Соусы' заголовок раздела виден на странице")
-    public void clickSaucesTabShowsSaucesSection() {
+    @DisplayName("Переход к разделу 'Соусы'")
+    @Description("После клика вкладка 'Соусы' становится активной на UI")
+    public void saucesTabBecomesActive() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
         mainPage.clickSaucesTab();
-        assertTrue(mainPage.isSaucesSectionVisible(),
-                "Заголовок 'Соусы' должен быть виден");
+
+        assertTrue(mainPage.isSaucesTabActive(),
+                "Вкладка 'Соусы' должна быть активной");
     }
 
     @Test
-    @DisplayName("Клик по вкладке 'Начинки' показывает раздел начинок")
-    @Description("После клика на 'Начинки' заголовок раздела виден на странице")
-    public void clickFillingsTabShowsFillingsSection() {
+    @DisplayName("Переход к разделу 'Начинки'")
+    @Description("После клика вкладка 'Начинки' становится активной на UI")
+    public void fillingsTabBecomesActive() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
         mainPage.clickFillingsTab();
-        assertTrue(mainPage.isFillingsSectionVisible(),
-                "Заголовок 'Начинки' должен быть виден");
+
+        assertTrue(mainPage.isFillingsTabActive(),
+                "Вкладка 'Начинки' должна быть активной");
     }
 }

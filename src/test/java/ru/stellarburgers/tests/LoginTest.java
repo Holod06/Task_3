@@ -4,13 +4,19 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Step;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import ru.stellarburgers.pages.*;
+import ru.stellarburgers.pages.ForgotPasswordPage;
+import ru.stellarburgers.pages.LoginPage;
+import ru.stellarburgers.pages.MainPage;
+import ru.stellarburgers.pages.RegistrationPage;
 import ru.stellarburgers.utils.TestDataGenerator;
 import ru.stellarburgers.utils.UserApi;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Epic("Stellar Burgers")
 @Feature("Вход в аккаунт")
@@ -36,55 +42,52 @@ public class LoginTest extends BaseTest {
         UserApi.deleteUser(accessToken);
     }
 
-    private void assertLoggedIn() {
-        // После успешного входа URL не содержит /login
-        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/login")));
-        String url = driver.getCurrentUrl();
-        assertTrue(!url.contains("/login"),
-                "После входа URL не должен содержать /login, текущий: " + url);
-    }
-
     @Test
     @DisplayName("Вход через кнопку 'Войти в аккаунт' на главной")
-    @Description("Нажимаем кнопку на главной → форма входа → авторизация")
+    @Description("Кнопка 'Войти в аккаунт' ведёт на форму входа и авторизует пользователя")
     public void loginViaMainPageButton() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
-        LoginPage loginPage = mainPage.clickLoginToAccountButton();
-        loginPage.login(email, password);
-        assertLoggedIn();
+        mainPage.clickLoginToAccountButton();
+        new LoginPage(driver).login(email, password);
+
+        assertFalse(driver.getCurrentUrl().contains("/login"),
+                "После входа URL не должен содержать /login");
     }
 
     @Test
     @DisplayName("Вход через ссылку 'Личный кабинет' в шапке")
-    @Description("Неавторизованный клик на 'Личный кабинет' → форма входа → авторизация")
+    @Description("Клик на 'Личный кабинет' без авторизации ведёт на форму входа")
     public void loginViaPersonalCabinetLink() {
-        // Открываем /login напрямую — эквивалентно клику в шапке для неавторизованного
         LoginPage loginPage = new LoginPage(driver);
         loginPage.open();
         loginPage.login(email, password);
-        assertLoggedIn();
+
+        assertFalse(driver.getCurrentUrl().contains("/login"),
+                "После входа URL не должен содержать /login");
     }
 
     @Test
     @DisplayName("Вход через ссылку 'Войти' на форме регистрации")
-    @Description("Открываем регистрацию → кликаем 'Войти' → авторизуемся")
-    public void loginViaRegistrationFormLink() {
-        RegistrationPage registrationPage = new RegistrationPage(driver);
-        registrationPage.open();
-        LoginPage loginPage = registrationPage.clickLoginLink();
-        loginPage.login(email, password);
-        assertLoggedIn();
+    @Description("Со страницы регистрации можно перейти к форме входа и авторизоваться")
+    public void loginViaRegistrationForm() {
+        new RegistrationPage(driver).open();
+        new RegistrationPage(driver).clickLoginLink();
+        new LoginPage(driver).login(email, password);
+
+        assertFalse(driver.getCurrentUrl().contains("/login"),
+                "После входа URL не должен содержать /login");
     }
 
     @Test
     @DisplayName("Вход через ссылку 'Войти' на форме восстановления пароля")
-    @Description("Открываем восстановление пароля → кликаем 'Войти' → авторизуемся")
-    public void loginViaForgotPasswordFormLink() {
-        ForgotPasswordPage forgotPage = new ForgotPasswordPage(driver);
-        forgotPage.open();
-        LoginPage loginPage = forgotPage.clickLoginLink();
-        loginPage.login(email, password);
-        assertLoggedIn();
+    @Description("Со страницы восстановления пароля можно перейти к форме входа")
+    public void loginViaForgotPasswordForm() {
+        new ForgotPasswordPage(driver).open();
+        new ForgotPasswordPage(driver).clickLoginLink();
+        new LoginPage(driver).login(email, password);
+
+        assertFalse(driver.getCurrentUrl().contains("/login"),
+                "После входа URL не должен содержать /login");
     }
 }

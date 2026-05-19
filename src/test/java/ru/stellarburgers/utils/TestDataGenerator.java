@@ -17,11 +17,12 @@ public class TestDataGenerator {
     }
 
     public static String generateValidPassword() {
+        // Минимум 6 символов
         return faker.internet().password(6, 12, true, true);
     }
 
     public static String generateShortPassword() {
-        // Пароль меньше 6 символов — некорректный
+        // Менее 6 символов — некорректный пароль
         return faker.internet().password(1, 5, false, false);
     }
 }

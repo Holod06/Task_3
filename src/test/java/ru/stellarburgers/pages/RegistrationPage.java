@@ -7,23 +7,31 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class RegistrationPage extends BasePage {
 
+    // Из реального DOM страницы /register:
+    // input[0] name='name' type='text'   — поле Имя
+    // input[1] name='name' type='text'   — поле Email (оба name='name'!)
+    // input[2] name='Пароль' type='password'
+    // button text='Зарегистрироваться'
     private final By nameField =
-            By.xpath("//input[@name='name' or @placeholder='Имя']");
+            By.xpath("(//input[@name='name'])[1]");
     private final By emailField =
-            By.xpath("//label[normalize-space()='Email']/following::input[1]");
+            By.xpath("(//input[@name='name'])[2]");
     private final By passwordField =
-            By.xpath("//input[@type='password' or @name='Пароль']");
+            By.xpath("//input[@name='Пароль']");
     private final By registerButton =
-            By.xpath("//button[contains(text(),'Зарегистрироваться')]");
+            By.xpath("//button[text()='Зарегистрироваться']");
     private final By loginLink =
             By.xpath("//a[@href='/login']");
     private final By passwordError =
-            By.xpath("//*[contains(text(),'Некорректный пароль')]");
+            By.xpath("//*[contains(@class,'input__error') and contains(text(),'Некорректный пароль')]");
 
     public RegistrationPage(WebDriver driver) { super(driver); }
 
     @Step("Открыть страницу регистрации")
-    public void open() { driver.get(BASE_URL + "/register"); }
+    public void open() {
+        driver.get(BASE_URL + "/register");
+        wait.until(ExpectedConditions.presenceOfElementLocated(registerButton));
+    }
 
     @Step("Ввести имя")
     public RegistrationPage enterName(String name) {
@@ -43,15 +51,14 @@ public class RegistrationPage extends BasePage {
         return this;
     }
 
-    @Step("Нажать кнопку 'Зарегистрироваться'")
+    @Step("Нажать 'Зарегистрироваться' (ожидаем редирект на /login)")
     public LoginPage clickRegisterButton() {
         waitClickable(registerButton).click();
-        // Ждём редиректа на /login
         wait.until(ExpectedConditions.urlContains("/login"));
         return new LoginPage(driver);
     }
 
-    @Step("Нажать кнопку 'Зарегистрироваться' (ожидаем ошибку)")
+    @Step("Нажать 'Зарегистрироваться' (ожидаем ошибку)")
     public RegistrationPage clickRegisterButtonExpectError() {
         waitClickable(registerButton).click();
         return this;

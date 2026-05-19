@@ -2,66 +2,68 @@ package ru.stellarburgers.pages;
 
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class PersonalCabinetPage extends BasePage {
 
-    // Кнопка выхода — ищем любую кнопку с текстом «Выйти» или «Выход»
-    private final By logoutButton =
-            By.xpath("//button[contains(text(),'Выйти') or contains(text(),'Выход')]");
+    // Из реального DOM (шапка одинакова на всех страницах после логина):
+    // <a href="/account" class="AppHeader_header__link__3D_hX">Личный Кабинет</a>
+    private final By personalCabinetHeaderLink =
+            By.xpath("//a[@href='/account']");
 
-    // Поле имени в профиле
-    private final By nameField =
-            By.xpath("//input[@name='name' or @placeholder='Имя']");
-
-    // Ссылка «Конструктор» в шапке (по href)
+    // <a href="/"><p class="AppHeader_header__linkText__3q_va">Конструктор</p></a>
     private final By constructorLink =
-            By.xpath("//a[@href='/']");
+            By.xpath("//a[@href='/']//p[contains(@class,'AppHeader_header__linkText')]");
 
-    // Логотип
+    // <div class="AppHeader_header__logo__2D0X2"><a class="active" href="/">
     private final By logoLink =
-            By.xpath("//*[contains(@class,'logo')]");
+            By.xpath("//div[contains(@class,'AppHeader_header__logo')]//a[@href='/']");
 
-    // Ссылка «Профиль» в левом меню кабинета
-    private final By profileMenuLink =
-            By.xpath("//a[contains(@href,'/account/profile')]");
+    // Кнопка «Выход» — из реального DOM: button text='Выход'
+    private final By logoutButton =
+            By.xpath("//button[text()='Выход']");
 
     public PersonalCabinetPage(WebDriver driver) { super(driver); }
 
-    @Step("Открыть страницу личного кабинета напрямую")
-    public void open() { driver.get(BASE_URL + "/account/profile"); }
+    /**
+     * Переходит в кабинет кликом по ссылке в шапке.
+     * НЕ использует driver.get() — страница /account/profile требует
+     * SPA-навигации с живой сессией, иначе React отдаёт пустой root.
+     * Вызывать только когда пользователь уже на главной после входа.
+     */
+    @Step("Перейти в личный кабинет кликом на ссылку в шапке")
+    public PersonalCabinetPage navigateFromHeader() {
+        waitClickable(personalCabinetHeaderLink).click();
+        wait.until(ExpectedConditions.urlContains("/account"));
+        // Ждём рендера содержимого кабинета
+        waitVisible(logoutButton);
+        return this;
+    }
 
     @Step("Нажать кнопку 'Выйти'")
     public LoginPage clickLogoutButton() {
-        jsClick(logoutButton);
+        waitVisible(logoutButton).click();
+        wait.until(ExpectedConditions.urlContains("/login"));
         return new LoginPage(driver);
     }
 
     @Step("Нажать 'Конструктор' в шапке")
     public MainPage clickConstructorLink() {
-        jsClick(constructorLink);
+        waitClickable(constructorLink).click();
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/account")));
         return new MainPage(driver);
     }
 
-    @Step("Нажать на логотип")
+    @Step("Нажать на логотип Stellar Burgers")
     public MainPage clickLogo() {
-        jsClick(logoLink);
+        waitClickable(logoLink).click();
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/account")));
         return new MainPage(driver);
-    }
-
-    private void jsClick(By locator) {
-        WebElement el = waitVisible(locator);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
     }
 
     @Step("Проверить, что личный кабинет открыт")
     public boolean isPersonalCabinetOpened() {
-        // Проверяем по URL — надёжнее чем локатор
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {}
         return driver.getCurrentUrl().contains("/account");
     }
 }

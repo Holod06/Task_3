@@ -7,23 +7,28 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class LoginPage extends BasePage {
 
+    // Из реального DOM страницы /login:
+    // input[0] name='name' type='text'   — поле Email
+    // input[1] name='Пароль' type='password' — поле Пароль
+    // button text='Войти'
     private final By emailField =
-            By.xpath("//input[@name='name' or @type='email']");
+            By.xpath("//input[@name='name']");
     private final By passwordField =
-            By.xpath("//input[@name='Пароль' or @type='password']");
+            By.xpath("//input[@name='Пароль']");
     private final By loginButton =
-            By.xpath("//button[contains(text(),'Войти')]");
+            By.xpath("//button[text()='Войти']");
     private final By registerLink =
             By.xpath("//a[@href='/register']");
     private final By forgotPasswordLink =
             By.xpath("//a[@href='/forgot-password']");
-    private final By pageTitle =
-            By.xpath("//*[contains(text(),'Вход')]");
 
     public LoginPage(WebDriver driver) { super(driver); }
 
     @Step("Открыть страницу входа")
-    public void open() { driver.get(BASE_URL + "/login"); }
+    public void open() {
+        driver.get(BASE_URL + "/login");
+        wait.until(ExpectedConditions.presenceOfElementLocated(loginButton));
+    }
 
     @Step("Ввести email")
     public LoginPage enterEmail(String email) {
@@ -42,9 +47,9 @@ public class LoginPage extends BasePage {
     @Step("Нажать кнопку 'Войти'")
     public MainPage clickLoginButton() {
         waitClickable(loginButton).click();
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/login")));
         return new MainPage(driver);
     }
-
     @Step("Нажать ссылку 'Зарегистрироваться'")
     public RegistrationPage clickRegisterLink() {
         waitClickable(registerLink).click();
@@ -69,6 +74,8 @@ public class LoginPage extends BasePage {
         try {
             wait.until(ExpectedConditions.urlContains("/login"));
             return true;
-        } catch (Exception e) { return false; }
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

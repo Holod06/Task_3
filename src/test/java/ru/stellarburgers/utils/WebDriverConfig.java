@@ -9,7 +9,6 @@ public class WebDriverConfig {
 
     public static WebDriver createDriver() {
         String browser = System.getProperty("browser", "chrome").toLowerCase();
-
         switch (browser) {
             case "yandex":
                 return createYandexDriver();
@@ -27,14 +26,13 @@ public class WebDriverConfig {
     }
 
     private static WebDriver createYandexDriver() {
-        String driverPath = System.getProperty("yandex.driver.path",
-                "/usr/local/bin/yandexdriver");
+        String driverPath = System.getProperty(
+                "yandex.driver.path", "/usr/local/bin/yandexdriver");
         System.setProperty("webdriver.chrome.driver", driverPath);
 
         ChromeOptions options = new ChromeOptions();
-        String browserPath = System.getProperty("yandex.browser.path",
-                "/usr/bin/yandex-browser");
-        options.setBinary(browserPath);
+        options.setBinary(System.getProperty(
+                "yandex.browser.path", "/usr/bin/yandex-browser"));
         options.addArguments("--no-sandbox", "--disable-dev-shm-usage");
         return new ChromeDriver(options);
     }

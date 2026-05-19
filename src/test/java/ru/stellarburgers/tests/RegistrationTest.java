@@ -3,8 +3,10 @@ package ru.stellarburgers.tests;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
-import org.junit.jupiter.api.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import io.qameta.allure.Step;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import ru.stellarburgers.pages.RegistrationPage;
 import ru.stellarburgers.utils.TestDataGenerator;
 import ru.stellarburgers.utils.UserApi;
@@ -19,6 +21,7 @@ public class RegistrationTest extends BaseTest {
     private String password;
 
     @AfterEach
+    @Step("Удалить тестового пользователя через API")
     public void deleteTestUser() {
         if (email != null && password != null) {
             try {
@@ -28,9 +31,9 @@ public class RegistrationTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Успешная регистрация — редирект на страницу входа")
-    @Description("После регистрации с валидными данными открывается /login")
-    public void successfulRegistrationRedirectsToLogin() {
+    @DisplayName("Успешная регистрация")
+    @Description("После регистрации с валидными данными открывается страница входа")
+    public void successfulRegistration() {
         String name = TestDataGenerator.generateName();
         email = TestDataGenerator.generateEmail();
         password = TestDataGenerator.generateValidPassword();
@@ -39,15 +42,14 @@ public class RegistrationTest extends BaseTest {
         page.open();
         page.register(name, email, password);
 
-        wait.until(ExpectedConditions.urlContains("/login"));
         assertTrue(driver.getCurrentUrl().contains("/login"),
                 "После регистрации должен быть редирект на /login");
     }
 
     @Test
-    @DisplayName("Пароль < 6 символов показывает ошибку 'Некорректный пароль'")
-    @Description("При вводе короткого пароля и отправке формы отображается ошибка")
-    public void shortPasswordShowsError() {
+    @DisplayName("Ошибка при вводе пароля короче 6 символов")
+    @Description("При коротком пароле форма показывает ошибку 'Некорректный пароль'")
+    public void registrationWithShortPasswordShowsError() {
         String name = TestDataGenerator.generateName();
         email = TestDataGenerator.generateEmail();
         password = TestDataGenerator.generateShortPassword();

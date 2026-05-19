@@ -10,93 +10,131 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 public class MainPage extends BasePage {
 
     // Шапка
-    private final By loginToAccountButton =
-            By.xpath("//button[contains(text(),'Войти')]");
     private final By personalCabinetLink =
-            By.xpath("//a[contains(@href,'/account')]");
-    private final By logoLink =
-            By.xpath("//a[contains(@href,'/') and .//*[contains(@class,'logo')] or contains(@class,'logo')]");
+            By.xpath("//a[@href='/account']");
     private final By constructorHeaderLink =
-            By.xpath("//a[@href='/']");
-
-    // Вкладки конструктора
-    private final By bunsTab =
-            By.xpath("//div[contains(@class,'tab_tab')]//span[text()='Булки']");
-    private final By saucesTab =
-            By.xpath("//span[text()='Соусы']");
-    private final By fillingsTab =
-            By.xpath("//span[text()='Начинки']");
+            By.xpath("//a[@href='/']//p[contains(@class,'AppHeader_header__linkText')]");
+    private final By logoLink =
+            By.xpath("//div[contains(@class,'AppHeader_header__logo')]//a[@href='/']");
+    private final By loginToAccountButton =
+            By.xpath("//button[text()='Войти в аккаунт']");
 
     // Заголовки разделов
-    private final By bunsHeader   = By.xpath("//h2[contains(text(),'Булки')]");
-    private final By saucesHeader = By.xpath("//h2[contains(text(),'Соусы')]");
-    private final By fillingsHeader = By.xpath("//h2[contains(text(),'Начинки')]");
+    private final By bunsHeader   = By.xpath("//h2[text()='Булки']");
+    private final By saucesHeader  = By.xpath("//h2[text()='Соусы']");
+    private final By fillingsHeader = By.xpath("//h2[text()='Начинки']");
+
+    // Вкладки — из реального DOM:
+    // активная:   class='tab_tab__1SPyG tab_tab_type_current__2BEPc ...'
+    // неактивная: class='tab_tab__1SPyG  ...'
+    private final By bunsTab =
+            By.xpath("//div[contains(@class,'tab_tab__') and .//span[text()='Булки']]");
+    private final By saucesTab =
+            By.xpath("//div[contains(@class,'tab_tab__') and .//span[text()='Соусы']]");
+    private final By fillingsTab =
+            By.xpath("//div[contains(@class,'tab_tab__') and .//span[text()='Начинки']]");
+
+    // Активные вкладки — ждём появления класса tab_tab_type_current в DOM
+    private final By activeBunsTab =
+            By.xpath("//div[contains(@class,'tab_tab_type_current') and .//span[text()='Булки']]");
+    private final By activeSaucesTab =
+            By.xpath("//div[contains(@class,'tab_tab_type_current') and .//span[text()='Соусы']]");
+    private final By activeFillingsTab =
+            By.xpath("//div[contains(@class,'tab_tab_type_current') and .//span[text()='Начинки']]");
 
     public MainPage(WebDriver driver) { super(driver); }
 
     @Step("Открыть главную страницу")
-    public void open() { driver.get(BASE_URL); }
+    public void open() {
+        driver.get(BASE_URL);
+        wait.until(ExpectedConditions.presenceOfElementLocated(personalCabinetLink));
+    }
 
     @Step("Нажать кнопку 'Войти в аккаунт' на главной")
     public LoginPage clickLoginToAccountButton() {
-        jsClick(loginToAccountButton);
+        waitClickable(loginToAccountButton).click();
         return new LoginPage(driver);
     }
 
     @Step("Нажать ссылку 'Личный кабинет' в шапке")
     public LoginPage clickPersonalCabinetLink() {
-        jsClick(personalCabinetLink);
+        waitClickable(personalCabinetLink).click();
         return new LoginPage(driver);
     }
 
-    @Step("Нажать на логотип")
+    @Step("Нажать на логотип Stellar Burgers")
     public MainPage clickLogo() {
-        // Логотип — картинка внутри ссылки или div; кликаем JS
-        By logo = By.xpath("//*[contains(@class,'logo')]");
-        jsClick(logo);
+        waitClickable(logoLink).click();
         return this;
     }
 
-    @Step("Нажать 'Конструктор' в шапке")
+    @Step("Нажать на 'Конструктор' в шапке")
     public MainPage clickConstructorHeaderLink() {
-        jsClick(constructorHeaderLink);
+        waitClickable(constructorHeaderLink).click();
         return this;
     }
 
-    @Step("Нажать вкладку 'Булки'")
-    public void clickBunsTab() { jsClick(bunsTab); }
-
-    @Step("Нажать вкладку 'Соусы'")
-    public void clickSaucesTab() { jsClick(saucesTab); }
-
-    @Step("Нажать вкладку 'Начинки'")
-    public void clickFillingsTab() { jsClick(fillingsTab); }
-
-    private void jsClick(By locator) {
-        WebElement el = waitVisible(locator);
+    @Step("Нажать вкладку 'Булки' и дождаться её активации на UI")
+    public void clickBunsTab() {
+        WebElement el = waitVisible(bunsTab);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
+        // Ждём пока вкладка визуально станет активной (класс tab_tab_type_current появится в DOM)
+        wait.until(ExpectedConditions.visibilityOfElementLocated(activeBunsTab));
     }
 
-    @Step("Проверить, что заголовок 'Булки' виден")
-    public boolean isBunsSectionVisible() { return isElementVisible(bunsHeader); }
+    @Step("Нажать вкладку 'Соусы' и дождаться её активации на UI")
+    public void clickSaucesTab() {
+        WebElement el = waitVisible(saucesTab);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
+        // Ждём пока вкладка визуально станет активной
+        wait.until(ExpectedConditions.visibilityOfElementLocated(activeSaucesTab));
+    }
 
-    @Step("Проверить, что заголовок 'Соусы' виден")
-    public boolean isSaucesSectionVisible() { return isElementVisible(saucesHeader); }
+    @Step("Нажать вкладку 'Начинки' и дождаться её активации на UI")
+    public void clickFillingsTab() {
+        WebElement el = waitVisible(fillingsTab);
+        ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
+        // Ждём пока вкладка визуально станет активной
+        wait.until(ExpectedConditions.visibilityOfElementLocated(activeFillingsTab));
+    }
 
-    @Step("Проверить, что заголовок 'Начинки' виден")
-    public boolean isFillingsSectionVisible() { return isElementVisible(fillingsHeader); }
+    @Step("Проверить, что вкладка 'Булки' активна на UI")
+    public boolean isBunsTabActive() {
+        return isElementVisible(activeBunsTab);
+    }
 
-    @Step("Проверить, что ссылка 'Личный кабинет' доступна (пользователь вошёл)")
+    @Step("Проверить, что вкладка 'Соусы' активна на UI")
+    public boolean isSaucesTabActive() {
+        return isElementVisible(activeSaucesTab);
+    }
+
+    @Step("Проверить, что вкладка 'Начинки' активна на UI")
+    public boolean isFillingsTabActive() {
+        return isElementVisible(activeFillingsTab);
+    }
+
+    @Step("Проверить, что ссылка 'Личный кабинет' есть в шапке")
     public boolean isPersonalCabinetLinkVisible() {
-        // После входа в шапке появляется ссылка на /account
-        try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(personalCabinetLink));
-            return true;
-        } catch (Exception e) { return false; }
+        return isElementVisible(personalCabinetLink);
     }
 
     @Step("Проверить, что кнопка 'Войти в аккаунт' отображается")
     public boolean isLoginToAccountButtonVisible() {
         return isElementVisible(loginToAccountButton);
+    }
+
+    @Step("Проверить, что раздел 'Булки' виден")
+    public boolean isBunsSectionVisible() {
+        return isElementVisible(bunsHeader);
+    }
+
+    @Step("Проверить, что раздел 'Соусы' виден")
+    public boolean isSaucesSectionVisible() {
+        return isElementVisible(saucesHeader);
+    }
+
+    @Step("Проверить, что раздел 'Начинки' виден")
+    public boolean isFillingsSectionVisible() {
+        return isElementVisible(fillingsHeader);
     }
 }
