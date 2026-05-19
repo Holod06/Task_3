@@ -24,9 +24,7 @@ public class MainPage extends BasePage {
     private final By saucesHeader  = By.xpath("//h2[text()='Соусы']");
     private final By fillingsHeader = By.xpath("//h2[text()='Начинки']");
 
-    // Вкладки — из реального DOM:
-    // активная:   class='tab_tab__1SPyG tab_tab_type_current__2BEPc ...'
-    // неактивная: class='tab_tab__1SPyG  ...'
+    // Вкладки :
     private final By bunsTab =
             By.xpath("//div[contains(@class,'tab_tab__') and .//span[text()='Булки']]");
     private final By saucesTab =
@@ -34,7 +32,7 @@ public class MainPage extends BasePage {
     private final By fillingsTab =
             By.xpath("//div[contains(@class,'tab_tab__') and .//span[text()='Начинки']]");
 
-    // Активные вкладки — ждём появления класса tab_tab_type_current в DOM
+    // Активные вкладки
     private final By activeBunsTab =
             By.xpath("//div[contains(@class,'tab_tab_type_current') and .//span[text()='Булки']]");
     private final By activeSaucesTab =

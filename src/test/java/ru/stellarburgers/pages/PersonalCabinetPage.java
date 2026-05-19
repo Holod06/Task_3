@@ -7,7 +7,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class PersonalCabinetPage extends BasePage {
 
-    // Из реального DOM (шапка одинакова на всех страницах после логина):
+    // шапка
     // <a href="/account" class="AppHeader_header__link__3D_hX">Личный Кабинет</a>
     private final By personalCabinetHeaderLink =
             By.xpath("//a[@href='/account']");
@@ -20,18 +20,13 @@ public class PersonalCabinetPage extends BasePage {
     private final By logoLink =
             By.xpath("//div[contains(@class,'AppHeader_header__logo')]//a[@href='/']");
 
-    // Кнопка «Выход» — из реального DOM: button text='Выход'
+    // Кнопка «Выход»
     private final By logoutButton =
             By.xpath("//button[text()='Выход']");
 
     public PersonalCabinetPage(WebDriver driver) { super(driver); }
 
-    /**
-     * Переходит в кабинет кликом по ссылке в шапке.
-     * НЕ использует driver.get() — страница /account/profile требует
-     * SPA-навигации с живой сессией, иначе React отдаёт пустой root.
-     * Вызывать только когда пользователь уже на главной после входа.
-     */
+
     @Step("Перейти в личный кабинет кликом на ссылку в шапке")
     public PersonalCabinetPage navigateFromHeader() {
         waitClickable(personalCabinetHeaderLink).click();

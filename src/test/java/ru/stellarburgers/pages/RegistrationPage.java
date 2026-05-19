@@ -7,7 +7,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class RegistrationPage extends BasePage {
 
-    // Из реального DOM страницы /register:
+    // register:
     // input[0] name='name' type='text'   — поле Имя
     // input[1] name='name' type='text'   — поле Email (оба name='name'!)
     // input[2] name='Пароль' type='password'
