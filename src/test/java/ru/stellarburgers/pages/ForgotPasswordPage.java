@@ -23,4 +23,9 @@ public class ForgotPasswordPage extends BasePage {
         waitClickable(loginLink).click();
         return new LoginPage(driver);
     }
+
+    @Step("Проверить, что ссылка 'Войти' отображается")
+    public boolean isLoginLinkVisible() {
+        return isElementVisible(loginLink);
+    }
 }

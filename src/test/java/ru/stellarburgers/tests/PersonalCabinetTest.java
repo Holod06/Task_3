@@ -8,88 +8,86 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import ru.stellarburgers.pages.LoginPage;
+import ru.stellarburgers.pages.MainPage;
 import ru.stellarburgers.pages.PersonalCabinetPage;
 import ru.stellarburgers.utils.TestDataGenerator;
 import ru.stellarburgers.utils.UserApi;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Epic("Stellar Burgers")
 @Feature("Личный кабинет")
 public class PersonalCabinetTest extends BaseTest {
 
-    private String email;
-    private String password;
-    private String accessToken;
+    private String userEmail;
+    private String userPassword;
+    private PersonalCabinetPage personalCabinetPage;
+    private MainPage mainPage;
 
     @BeforeEach
-    @Step("Создать пользователя через API и войти в аккаунт")
-    public void createAndLoginUser() {
-        String name = TestDataGenerator.generateName();
-        email = TestDataGenerator.generateEmail();
-        password = TestDataGenerator.generateValidPassword();
-        UserApi.createUser(name, email, password);
-        accessToken = UserApi.getAccessToken(email, password);
+    @Step("Создать тестового пользователя, выполнить вход и перейти в личный кабинет")
+    public void setUpPersonalCabinet() {
+        userEmail = TestDataGenerator.generateEmail();
+        userPassword = TestDataGenerator.generateValidPassword();
+        UserApi.createUser(TestDataGenerator.generateName(), userEmail, userPassword);
 
-        new LoginPage(driver).open();
-        new LoginPage(driver).login(email, password);
-        wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//a[@href='/account']")));
+        LoginPage loginPage = new LoginPage(driver);
+        loginPage.open();
+        loginPage.login(userEmail, userPassword);
+
+        personalCabinetPage = new PersonalCabinetPage(driver);
+        mainPage = new MainPage(driver);
     }
 
     @AfterEach
     @Step("Удалить тестового пользователя через API")
-    public void deleteTestUser() {
-        UserApi.deleteUser(accessToken);
+    public void tearDownPersonalCabinet() {
+        try {
+            UserApi.deleteUser(UserApi.getAccessToken(userEmail, userPassword));
+        } catch (Exception ignored) {}
     }
 
     @Test
-    @DisplayName("Переход в личный кабинет")
-    @Description("Клик на 'Личный кабинет' в шапке открывает страницу профиля")
-    public void navigateToPersonalCabinet() {
-        new PersonalCabinetPage(driver).navigateFromHeader();
+    @DisplayName("Переход в личный кабинет по клику на «Личный кабинет»")
+    @Description("После авторизации клик на ссылку 'Личный кабинет' в шапке открывает /account")
+    public void navigateToPersonalCabinetTest() {
+        personalCabinetPage.navigateFromHeader();
 
-        assertTrue(driver.getCurrentUrl().contains("/account"),
-                "URL должен содержать /account");
+        assertTrue(personalCabinetPage.isPersonalCabinetOpened(),
+                "Должен открыться личный кабинет (/account)");
     }
 
     @Test
-    @DisplayName("Переход из кабинета в конструктор")
-    @Description("Клик на 'Конструктор' в шапке из кабинета возвращает на главную")
-    public void navigateFromCabinetToConstructor() {
-        PersonalCabinetPage cabinet = new PersonalCabinetPage(driver);
-        cabinet.navigateFromHeader();
-        cabinet.clickConstructorLink();
+    @DisplayName("Переход из личного кабинета в конструктор по клику на «Конструктор»")
+    @Description("Из личного кабинета клик на 'Конструктор' в шапке возвращает на главную")
+    public void navigateToConstructorFromCabinetTest() {
+        personalCabinetPage.navigateFromHeader();
+        personalCabinetPage.clickConstructorLink();
 
-        assertFalse(driver.getCurrentUrl().contains("/account"),
-                "URL не должен содержать /account");
+        assertTrue(mainPage.isBunsSectionVisible(),
+                "После перехода в конструктор должен отображаться раздел 'Булки'");
     }
 
     @Test
-    @DisplayName("Переход из кабинета на главную через логотип")
-    @Description("Клик на логотип из кабинета возвращает на главную страницу")
-    public void navigateFromCabinetViaLogo() {
-        PersonalCabinetPage cabinet = new PersonalCabinetPage(driver);
-        cabinet.navigateFromHeader();
-        cabinet.clickLogo();
+    @DisplayName("Переход из личного кабинета на главную по клику на логотип")
+    @Description("Из личного кабинета клик на логотип Stellar Burgers возвращает на главную")
+    public void navigateToMainPageViaLogoFromCabinetTest() {
+        personalCabinetPage.navigateFromHeader();
+        personalCabinetPage.clickLogo();
 
-        assertFalse(driver.getCurrentUrl().contains("/account"),
-                "URL не должен содержать /account");
+        assertTrue(mainPage.isBunsSectionVisible(),
+                "После клика на логотип должна открыться главная страница с разделом 'Булки'");
     }
 
     @Test
-    @DisplayName("Выход из аккаунта")
-    @Description("Кнопка 'Выход' в кабинете разлогинивает и перенаправляет на /login")
-    public void logout() {
-        PersonalCabinetPage cabinet = new PersonalCabinetPage(driver);
-        cabinet.navigateFromHeader();
-        cabinet.clickLogoutButton();
+    @DisplayName("Выход из аккаунта по кнопке «Выйти»")
+    @Description("В личном кабинете клик на 'Выйти' разлогинивает пользователя и открывает /login")
+    public void logoutFromPersonalCabinetTest() {
+        personalCabinetPage.navigateFromHeader();
+        LoginPage loginPage = personalCabinetPage.clickLogoutButton();
 
-        assertTrue(driver.getCurrentUrl().contains("/login"),
-                "После выхода URL должен содержать /login");
+        assertTrue(loginPage.isLoginPageOpened(),
+                "После выхода должна открыться страница входа (/login)");
     }
 }

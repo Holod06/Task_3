@@ -8,7 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 public class LoginPage extends BasePage {
 
     // /login:
-    // input[0] name='name' type='text'   — поле Email
+    // input[0] name='name' type='text'       — поле Email
     // input[1] name='Пароль' type='password' — поле Пароль
     // button text='Войти'
     private final By emailField =
@@ -50,6 +50,7 @@ public class LoginPage extends BasePage {
         wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/login")));
         return new MainPage(driver);
     }
+
     @Step("Нажать ссылку 'Зарегистрироваться'")
     public RegistrationPage clickRegisterLink() {
         waitClickable(registerLink).click();

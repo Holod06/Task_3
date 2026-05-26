@@ -7,16 +7,15 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class PersonalCabinetPage extends BasePage {
 
-    // шапка
-    // <a href="/account" class="AppHeader_header__link__3D_hX">Личный Кабинет</a>
+    // Ссылка на личный кабинет в шапке
     private final By personalCabinetHeaderLink =
             By.xpath("//a[@href='/account']");
 
-    // <a href="/"><p class="AppHeader_header__linkText__3q_va">Конструктор</p></a>
+    // Ссылка на конструктор в шапке
     private final By constructorLink =
             By.xpath("//a[@href='/']//p[contains(@class,'AppHeader_header__linkText')]");
 
-    // <div class="AppHeader_header__logo__2D0X2"><a class="active" href="/">
+    // Логотип
     private final By logoLink =
             By.xpath("//div[contains(@class,'AppHeader_header__logo')]//a[@href='/']");
 
@@ -26,12 +25,10 @@ public class PersonalCabinetPage extends BasePage {
 
     public PersonalCabinetPage(WebDriver driver) { super(driver); }
 
-
     @Step("Перейти в личный кабинет кликом на ссылку в шапке")
     public PersonalCabinetPage navigateFromHeader() {
         waitClickable(personalCabinetHeaderLink).click();
         wait.until(ExpectedConditions.urlContains("/account"));
-        // Ждём рендера содержимого кабинета
         waitVisible(logoutButton);
         return this;
     }

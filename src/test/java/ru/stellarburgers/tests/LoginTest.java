@@ -8,86 +8,81 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import ru.stellarburgers.pages.ForgotPasswordPage;
 import ru.stellarburgers.pages.LoginPage;
 import ru.stellarburgers.pages.MainPage;
-import ru.stellarburgers.pages.RegistrationPage;
 import ru.stellarburgers.utils.TestDataGenerator;
 import ru.stellarburgers.utils.UserApi;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Epic("Stellar Burgers")
 @Feature("Вход в аккаунт")
 public class LoginTest extends BaseTest {
 
-    private String email;
-    private String password;
-    private String accessToken;
+    private String userEmail;
+    private String userPassword;
+    private MainPage mainPage;
+    private LoginPage loginPage;
 
     @BeforeEach
     @Step("Создать тестового пользователя через API")
-    public void createTestUser() {
-        String name = TestDataGenerator.generateName();
-        email = TestDataGenerator.generateEmail();
-        password = TestDataGenerator.generateValidPassword();
-        UserApi.createUser(name, email, password);
-        accessToken = UserApi.getAccessToken(email, password);
+    public void setUpLogin() {
+        userEmail = TestDataGenerator.generateEmail();
+        userPassword = TestDataGenerator.generateValidPassword();
+        UserApi.createUser(TestDataGenerator.generateName(), userEmail, userPassword);
+        mainPage = new MainPage(driver);
+        loginPage = new LoginPage(driver);
     }
 
     @AfterEach
     @Step("Удалить тестового пользователя через API")
-    public void deleteTestUser() {
-        UserApi.deleteUser(accessToken);
+    public void tearDownLogin() {
+        try {
+            UserApi.deleteUser(UserApi.getAccessToken(userEmail, userPassword));
+        } catch (Exception ignored) {}
     }
 
     @Test
-    @DisplayName("Вход через кнопку 'Войти в аккаунт' на главной")
-    @Description("Кнопка 'Войти в аккаунт' ведёт на форму входа и авторизует пользователя")
-    public void loginViaMainPageButton() {
-        MainPage mainPage = new MainPage(driver);
+    @DisplayName("Вход по кнопке «Войти в аккаунт» на главной странице")
+    @Description("Клик на кнопку 'Войти в аккаунт' на главной → форма логина → успешный вход")
+    public void loginViaMainPageButtonTest() {
         mainPage.open();
-        mainPage.clickLoginToAccountButton();
-        new LoginPage(driver).login(email, password);
+        mainPage.clickLoginToAccountButton().login(userEmail, userPassword);
 
-        assertFalse(driver.getCurrentUrl().contains("/login"),
-                "После входа URL не должен содержать /login");
+        assertTrue(mainPage.isPersonalCabinetLinkVisible(),
+                "После входа должна быть видна ссылка 'Личный кабинет'");
     }
 
     @Test
-    @DisplayName("Вход через ссылку 'Личный кабинет' в шапке")
-    @Description("Клик на 'Личный кабинет' без авторизации ведёт на форму входа")
-    public void loginViaPersonalCabinetLink() {
-        LoginPage loginPage = new LoginPage(driver);
+    @DisplayName("Вход через ссылку «Личный кабинет» в шапке главной страницы")
+    @Description("Клик на 'Личный кабинет' в шапке → форма логина → успешный вход")
+    public void loginViaPersonalCabinetLinkTest() {
+        mainPage.open();
+        mainPage.clickPersonalCabinetLink().login(userEmail, userPassword);
+
+        assertTrue(mainPage.isPersonalCabinetLinkVisible(),
+                "После входа должна быть видна ссылка 'Личный кабинет'");
+    }
+
+    @Test
+    @DisplayName("Вход через кнопку «Войти» в форме регистрации")
+    @Description("Страница регистрации → ссылка 'Войти' → форма логина → успешный вход")
+    public void loginViaRegistrationFormTest() {
         loginPage.open();
-        loginPage.login(email, password);
+        loginPage.clickRegisterLink().clickLoginLink().login(userEmail, userPassword);
 
-        assertFalse(driver.getCurrentUrl().contains("/login"),
-                "После входа URL не должен содержать /login");
+        assertTrue(mainPage.isPersonalCabinetLinkVisible(),
+                "После входа должна быть видна ссылка 'Личный кабинет'");
     }
 
     @Test
-    @DisplayName("Вход через ссылку 'Войти' на форме регистрации")
-    @Description("Со страницы регистрации можно перейти к форме входа и авторизоваться")
-    public void loginViaRegistrationForm() {
-        new RegistrationPage(driver).open();
-        new RegistrationPage(driver).clickLoginLink();
-        new LoginPage(driver).login(email, password);
+    @DisplayName("Вход через кнопку «Войти» в форме восстановления пароля")
+    @Description("Страница восстановления пароля → ссылка 'Войти' → форма логина → успешный вход")
+    public void loginViaForgotPasswordFormTest() {
+        loginPage.open();
+        loginPage.clickForgotPasswordLink().clickLoginLink().login(userEmail, userPassword);
 
-        assertFalse(driver.getCurrentUrl().contains("/login"),
-                "После входа URL не должен содержать /login");
-    }
-
-    @Test
-    @DisplayName("Вход через ссылку 'Войти' на форме восстановления пароля")
-    @Description("Со страницы восстановления пароля можно перейти к форме входа")
-    public void loginViaForgotPasswordForm() {
-        new ForgotPasswordPage(driver).open();
-        new ForgotPasswordPage(driver).clickLoginLink();
-        new LoginPage(driver).login(email, password);
-
-        assertFalse(driver.getCurrentUrl().contains("/login"),
-                "После входа URL не должен содержать /login");
+        assertTrue(mainPage.isPersonalCabinetLinkVisible(),
+                "После входа должна быть видна ссылка 'Личный кабинет'");
     }
 }

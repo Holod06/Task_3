@@ -14,39 +14,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ConstructorTest extends BaseTest {
 
     @Test
-    @DisplayName("Переход к разделу 'Булки'")
-    @Description("После клика вкладка 'Булки' становится активной на UI")
-    public void bunsTabBecomesActive() {
+    @DisplayName("Переход к разделу «Булки»")
+    @Description("Клик на вкладку 'Булки' делает её активной")
+    public void bunsTabBecomesActiveTest() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
-        mainPage.clickSaucesTab(); // уходим от булок
-        mainPage.clickBunsTab();  // метод сам ждёт активации вкладки
+        mainPage.clickSaucesTab();
+        mainPage.clickBunsTab();
 
         assertTrue(mainPage.isBunsTabActive(),
-                "Вкладка 'Булки' должна быть активной");
+                "Вкладка 'Булки' должна стать активной");
     }
 
     @Test
-    @DisplayName("Переход к разделу 'Соусы'")
-    @Description("После клика вкладка 'Соусы' становится активной на UI")
-    public void saucesTabBecomesActive() {
+    @DisplayName("Переход к разделу «Соусы»")
+    @Description("Клик на вкладку 'Соусы' делает её активной")
+    public void saucesTabBecomesActiveTest() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
         mainPage.clickSaucesTab();
 
         assertTrue(mainPage.isSaucesTabActive(),
-                "Вкладка 'Соусы' должна быть активной");
+                "Вкладка 'Соусы' должна стать активной");
     }
 
     @Test
-    @DisplayName("Переход к разделу 'Начинки'")
-    @Description("После клика вкладка 'Начинки' становится активной на UI")
-    public void fillingsTabBecomesActive() {
+    @DisplayName("Переход к разделу «Начинки»")
+    @Description("Клик на вкладку 'Начинки' делает её активной")
+    public void fillingsTabBecomesActiveTest() {
         MainPage mainPage = new MainPage(driver);
         mainPage.open();
         mainPage.clickFillingsTab();
 
         assertTrue(mainPage.isFillingsTabActive(),
-                "Вкладка 'Начинки' должна быть активной");
+                "Вкладка 'Начинки' должна стать активной");
     }
 }

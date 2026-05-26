@@ -20,11 +20,11 @@ public class MainPage extends BasePage {
             By.xpath("//button[text()='Войти в аккаунт']");
 
     // Заголовки разделов
-    private final By bunsHeader   = By.xpath("//h2[text()='Булки']");
+    private final By bunsHeader    = By.xpath("//h2[text()='Булки']");
     private final By saucesHeader  = By.xpath("//h2[text()='Соусы']");
     private final By fillingsHeader = By.xpath("//h2[text()='Начинки']");
 
-    // Вкладки :
+    // Вкладки
     private final By bunsTab =
             By.xpath("//div[contains(@class,'tab_tab__') and .//span[text()='Булки']]");
     private final By saucesTab =
@@ -76,7 +76,6 @@ public class MainPage extends BasePage {
     public void clickBunsTab() {
         WebElement el = waitVisible(bunsTab);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
-        // Ждём пока вкладка визуально станет активной (класс tab_tab_type_current появится в DOM)
         wait.until(ExpectedConditions.visibilityOfElementLocated(activeBunsTab));
     }
 
@@ -84,7 +83,6 @@ public class MainPage extends BasePage {
     public void clickSaucesTab() {
         WebElement el = waitVisible(saucesTab);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
-        // Ждём пока вкладка визуально станет активной
         wait.until(ExpectedConditions.visibilityOfElementLocated(activeSaucesTab));
     }
 
@@ -92,7 +90,6 @@ public class MainPage extends BasePage {
     public void clickFillingsTab() {
         WebElement el = waitVisible(fillingsTab);
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
-        // Ждём пока вкладка визуально станет активной
         wait.until(ExpectedConditions.visibilityOfElementLocated(activeFillingsTab));
     }
 

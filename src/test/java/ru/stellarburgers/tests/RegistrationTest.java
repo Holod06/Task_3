@@ -31,9 +31,9 @@ public class RegistrationTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Успешная регистрация")
-    @Description("После регистрации с валидными данными открывается страница входа")
-    public void successfulRegistration() {
+    @DisplayName("Успешная регистрация с валидными данными")
+    @Description("После регистрации с корректными данными выполняется редирект на страницу входа")
+    public void successfulRegistrationTest() {
         String name = TestDataGenerator.generateName();
         email = TestDataGenerator.generateEmail();
         password = TestDataGenerator.generateValidPassword();
@@ -43,13 +43,13 @@ public class RegistrationTest extends BaseTest {
         page.register(name, email, password);
 
         assertTrue(driver.getCurrentUrl().contains("/login"),
-                "После регистрации должен быть редирект на /login");
+                "После успешной регистрации должен быть редирект на /login");
     }
 
     @Test
     @DisplayName("Ошибка при вводе пароля короче 6 символов")
-    @Description("При коротком пароле форма показывает ошибку 'Некорректный пароль'")
-    public void registrationWithShortPasswordShowsError() {
+    @Description("При пароле менее 6 символов форма показывает ошибку 'Некорректный пароль'")
+    public void registrationWithShortPasswordShowsErrorTest() {
         String name = TestDataGenerator.generateName();
         email = TestDataGenerator.generateEmail();
         password = TestDataGenerator.generateShortPassword();

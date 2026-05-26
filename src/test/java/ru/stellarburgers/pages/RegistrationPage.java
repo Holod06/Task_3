@@ -8,8 +8,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 public class RegistrationPage extends BasePage {
 
     // register:
-    // input[0] name='name' type='text'   — поле Имя
-    // input[1] name='name' type='text'   — поле Email (оба name='name'!)
+    // input[0] name='name' type='text'       — поле Имя
+    // input[1] name='name' type='text'       — поле Email (оба name='name'!)
     // input[2] name='Пароль' type='password'
     // button text='Зарегистрироваться'
     private final By nameField =
@@ -76,6 +76,16 @@ public class RegistrationPage extends BasePage {
         enterEmail(email);
         enterPassword(password);
         return clickRegisterButton();
+    }
+
+    @Step("Проверить, что страница регистрации открыта")
+    public boolean isRegistrationPageOpened() {
+        try {
+            wait.until(ExpectedConditions.urlContains("/register"));
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Step("Проверить ошибку 'Некорректный пароль'")
